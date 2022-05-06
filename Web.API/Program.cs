@@ -1,4 +1,5 @@
 using SignalRChat.Hubs;
+using Web.API.Data;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -11,6 +12,7 @@ builder.Services.AddSwaggerGen();
 
 builder.Services.AddRazorPages();
 builder.Services.AddSignalR();
+builder.Services.AddDbContext<EfContext>();
 
 var app = builder.Build();
 
@@ -33,5 +35,10 @@ app.MapRazorPages();
 app.MapHub<ChatHub>("/chatHub");
 
 app.MapControllers();
+
+// ensure the in-memory database exists
+using (var scope = app.Services.CreateScope())
+using (var context = scope.ServiceProvider.GetRequiredService<EfContext>())
+  context.Database.EnsureCreated();
 
 app.Run();
